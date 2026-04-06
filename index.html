@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newton's Laws of Motion — Interactive Simulation</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="header">
+  <h1>Newton's Laws of Motion</h1>
+  <p>Interactive Physics Simulations — drag sliders, launch scenarios, and watch real-time graphs</p>
+</header>
+
+<!-- ==================== TABS ==================== -->
+<nav class="law-tabs">
+  <button class="law-tab active" data-law="1" onclick="NewtonApp.switchLaw(1)">
+    <span class="tab-number">Law I</span> Inertia
+  </button>
+  <button class="law-tab" data-law="2" onclick="NewtonApp.switchLaw(2)">
+    <span class="tab-number">Law II</span> F = ma
+  </button>
+  <button class="law-tab" data-law="3" onclick="NewtonApp.switchLaw(3)">
+    <span class="tab-number">Law III</span> Action &amp; Reaction
+  </button>
+</nav>
+
+<!-- ==================== CONTENT ==================== -->
+<div class="content-wrapper">
+
+  <!-- ============ LAW I: INERTIA ============ -->
+  <section class="law-section active" id="law1" data-law="1">
+
+    <div class="law-banner">
+      <div class="law-icon">&#8734;</div>
+      <div class="law-title-group">
+        <h2>Newton's First Law — Law of Inertia</h2>
+        <p>An object at rest stays at rest, and an object in motion stays in motion, unless acted upon by an external force.</p>
+      </div>
+      <span class="status-badge stopped" id="law1-status">Paused</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="law-layout">
+      <!-- Simulation Canvas -->
+      <div class="sim-area">
+        <div class="canvas-frame">
+          <canvas id="canvas1" class="sim-canvas" width="760" height="420"></canvas>
+        </div>
+
+        <!-- Formula -->
+        <div class="formula-block">
+          <div class="formula-text">
+            <span class="highlight">&#931;F</span> = 0 &nbsp;&#8658;&nbsp; <span class="highlight">v</span> = constant
+          </div>
+          <div class="formula-explain">
+            When the net external force is zero, velocity remains constant. In space (&mu; = 0), objects never stop!
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-area">
+
+        <!-- Surface Presets -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Surface / Environment</div>
+          <div class="surface-presets">
+            <button class="surface-btn active" data-surface="space" onclick="NewtonApp.law1.setSurface('space', this)">
+              <span class="surface-name">Space</span>
+              <span class="surface-mu">&#956; = 0.000</span>
+            </button>
+            <button class="surface-btn" data-surface="ice" onclick="NewtonApp.law1.setSurface('ice', this)">
+              <span class="surface-name">Ice</span>
+              <span class="surface-mu">&#956; = 0.020</span>
+            </button>
+            <button class="surface-btn" data-surface="wood" onclick="NewtonApp.law1.setSurface('wood', this)">
+              <span class="surface-name">Wood</span>
+              <span class="surface-mu">&#956; = 0.150</span>
+            </button>
+            <button class="surface-btn" data-surface="carpet" onclick="NewtonApp.law1.setSurface('carpet', this)">
+              <span class="surface-name">Carpet</span>
+              <span class="surface-mu">&#956; = 0.400</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Friction -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Friction Control</div>
+          <div class="slider-ctrl">
+            <div class="slider-header">
+              <span class="slider-label">Friction Coefficient &mu;</span>
+              <span class="slider-value" id="friction-value" style="color:var(--law1)">0.000</span>
+            </div>
+            <input type="range" class="slider-input" id="friction-slider" min="0" max="0.5" step="0.001" value="0" oninput="NewtonApp.law1.setFriction(this.value)">
+          </div>
+        </div>
+
+        <!-- Impulse -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Impulse</div>
+          <div class="slider-ctrl">
+            <div class="slider-header">
+              <span class="slider-label">Impulse Strength</span>
+              <span class="slider-value" id="impulse-value" style="color:var(--law1)">5.0</span>
+            </div>
+            <input type="range" class="slider-input" id="impulse-slider" min="1" max="15" step="0.5" value="5" oninput="NewtonApp.law1.setImpulse(this.value)">
+          </div>
+          <div class="btn-row">
+            <button class="btn secondary" onclick="NewtonApp.law1.reset()">Reset</button>
+          </div>
+          <div class="hint">Click anywhere on the simulation to apply an impulse to nearby particles</div>
+        </div>
+
+        <!-- Data Readout -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Live Data</div>
+          <div class="data-grid">
+            <div class="data-item">
+              <div class="data-label">Avg Speed</div>
+              <div class="data-value"><span id="law1-speed">2.00</span><span class="data-unit">m/s</span></div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Friction Force</div>
+              <div class="data-value"><span id="law1-friction">0.000</span><span class="data-unit">N</span></div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Net Force</div>
+              <div class="data-value"><span id="law1-net">0.000</span><span class="data-unit">N</span></div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Time</div>
+              <div class="data-value"><span id="law1-time">0.0</span><span class="data-unit">s</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-life Example -->
+        <div class="example-block">
+          <div class="example-icon">&#128640;</div>
+          <div class="example-title">Real-World Example</div>
+          <div class="example-desc">
+            Voyager 1 has been traveling through interstellar space since 1977 — over 45 billion km — with its engines off. In the vacuum of space, there's no friction to slow it down, so it keeps moving at the same velocity forever (Newton's 1st Law in action!).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graph -->
+    <div class="graph-panel">
+      <div class="graph-title">Speed vs Time</div>
+      <canvas id="graph1" class="graph-canvas" width="1160" height="160"></canvas>
+    </div>
+  </section>
+
+  <!-- ============ LAW II: F = ma ============ -->
+  <section class="law-section" id="law2" data-law="2">
+
+    <div class="law-banner">
+      <div class="law-icon">&#8593;</div>
+      <div class="law-title-group">
+        <h2>Newton's Second Law — F = ma</h2>
+        <p>Force equals mass times acceleration. Acceleration is directly proportional to force and inversely proportional to mass.</p>
+      </div>
+      <span class="status-badge stopped" id="law2-status">Paused</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="law-layout">
+      <!-- Simulation Canvas -->
+      <div class="sim-area">
+        <div class="canvas-frame">
+          <canvas id="canvas2" class="sim-canvas" width="760" height="420"></canvas>
+        </div>
+
+        <!-- Formula -->
+        <div class="formula-block">
+          <div class="formula-text">
+            <span class="highlight">F</span> = <span class="highlight">m</span> &times; <span class="highlight">a</span>
+            &nbsp;&nbsp;&rarr;&nbsp;&nbsp;
+            <span class="highlight">a</span> = <span class="highlight">F</span> / <span class="highlight">m</span>
+          </div>
+          <div class="formula-explain">
+            Double the force, double the acceleration. Double the mass, halve the acceleration. Try it below!
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-area">
+
+        <!-- Force Control -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Applied Force</div>
+          <div class="slider-ctrl">
+            <div class="slider-header">
+              <span class="slider-label">Thrust Force F</span>
+              <span class="slider-value" id="force-value" style="color:var(--law2)">50 N</span>
+            </div>
+            <input type="range" class="slider-input" id="force-slider" min="10" max="500" step="5" value="50" oninput="NewtonApp.law2.setForce(this.value)">
+          </div>
+        </div>
+
+        <!-- Mass Control -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Cart Mass</div>
+          <div class="slider-ctrl">
+            <div class="slider-header">
+              <span class="slider-label">Mass m</span>
+              <span class="slider-value" id="mass-value" style="color:var(--law2)">10.0 kg</span>
+            </div>
+            <input type="range" class="slider-input" id="mass-slider" min="1" max="100" step="1" value="10" oninput="NewtonApp.law2.setMass(this.value)">
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Controls</div>
+          <div class="btn-row" style="margin-bottom:8px;">
+            <button class="btn primary" onclick="NewtonApp.law2.thrust(); NewtonApp.law2.setRunning(true)">
+              &#8594; Thrust Forward
+            </button>
+            <button class="btn secondary" onclick="NewtonApp.law2.setDirection(-1); NewtonApp.law2.thrust(); NewtonApp.law2.setRunning(true)">
+              &#8592; Reverse
+            </button>
+          </div>
+          <div class="btn-row">
+            <button class="btn secondary" onclick="NewtonApp.law2.dropCargo()">Drop Cargo</button>
+            <button class="btn secondary" onclick="NewtonApp.law2.reset()">Reset</button>
+          </div>
+          <div class="hint">Drop cargo to see acceleration change mid-motion (less mass = higher acceleration)</div>
+        </div>
+
+        <!-- Data Readout -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Live Data</div>
+          <div class="data-grid">
+            <div class="data-item">
+              <div class="data-label">Force</div>
+              <div class="data-value"><span id="law2-force">50.0</span><span class="data-unit">N</span></div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Mass</div>
+              <div class="data-value"><span id="law2-mass">10.0</span><span class="data-unit">kg</span></div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Acceleration</div>
+              <div class="data-value"><span id="law2-accel">5.00</span><span class="data-unit">m/s&#178;</span></div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">Velocity</div>
+              <div class="data-value"><span id="law2-vel">0.00</span><span class="data-unit">m/s</span></div>
+            </div>
+            <div class="data-item full">
+              <div class="data-label">Position</div>
+              <div class="data-value"><span id="law2-pos">80.0</span><span class="data-unit">m</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-life Example -->
+        <div class="example-block">
+          <div class="example-icon">&#128640;</div>
+          <div class="example-title">Real-World Example</div>
+          <div class="example-desc">
+            SpaceX's Falcon 9 rocket burns fuel to create thrust (force). When the first stage detaches and falls away (mass drops by ~25 tonnes), the second stage with the same thrust suddenly accelerates much faster. Same force, less mass, higher acceleration!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graph -->
+    <div class="graph-panel">
+      <div class="graph-title">Velocity &amp; Acceleration vs Time</div>
+      <canvas id="graph2" class="graph-canvas" width="1160" height="160"></canvas>
+    </div>
+  </section>
+
+  <!-- ============ LAW III: ACTION & REACTION ============ -->
+  <section class="law-section" id="law3" data-law="3">
+
+    <div class="law-banner">
+      <div class="law-icon">&#8644;</div>
+      <div class="law-title-group">
+        <h2>Newton's Third Law — Action &amp; Reaction</h2>
+        <p>For every action, there is an equal and opposite reaction. Forces always come in pairs.</p>
+      </div>
+      <span class="status-badge stopped" id="law3-status">Paused</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="law-layout">
+      <!-- Simulation Canvas -->
+      <div class="sim-area">
+        <div class="canvas-frame">
+          <canvas id="canvas3" class="sim-canvas" width="760" height="420"></canvas>
+        </div>
+
+        <!-- Formula -->
+        <div class="formula-block">
+          <div class="formula-text">
+            <span class="highlight">F</span><sub>AB</sub> = &#8722;<span class="highlight">F</span><sub>BA</sub>
+            &nbsp;&nbsp;&rarr;&nbsp;&nbsp;
+            |F<sub>AB</sub>| = |F<sub>BA</sub>|
+          </div>
+          <div class="formula-explain">
+            When two objects collide, they exert equal and opposite forces on each other. Total momentum is always conserved!
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-area">
+
+        <!-- Scenario Selection -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Collision Scenarios</div>
+          <div class="scenario-grid">
+            <button class="scenario-btn active" onclick="NewtonApp.law3.setScenario('equal', this)">Equal Mass</button>
+            <button class="scenario-btn" onclick="NewtonApp.law3.setScenario('heavy-light', this)">Heavy vs Light</button>
+            <button class="scenario-btn" onclick="NewtonApp.law3.setScenario('inelastic', this)">Inelastic</button>
+            <button class="scenario-btn" onclick="NewtonApp.law3.setScenario('recoil', this)">Recoil</button>
+            <button class="scenario-btn" style="grid-column:span 2" onclick="NewtonApp.law3.setScenario('chain', this)">3-Body Chain Reaction</button>
+          </div>
+        </div>
+
+        <!-- Collision Type -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Collision Physics</div>
+          <div class="collision-type">
+            <span class="collision-label">Collision Type</span>
+            <span class="collision-value" id="collision-type-label">Elastic</span>
+          </div>
+          <div class="toggle-row">
+            <button class="toggle-btn active" id="elastic-btn" onclick="NewtonApp.law3.setCollisionType('elastic', this)">Elastic</button>
+            <button class="toggle-btn" id="inelastic-btn" onclick="NewtonApp.law3.setCollisionType('inelastic', this)">Inelastic</button>
+          </div>
+          <div class="hint">
+            <strong>Elastic:</strong> KE conserved (billiard balls)<br>
+            <strong>Inelastic:</strong> Objects stick, KE lost
+          </div>
+        </div>
+
+        <!-- Launch Control -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Simulation Control</div>
+          <div class="btn-row" style="margin-bottom:8px;">
+            <button class="btn launch" id="launch-btn" onclick="NewtonApp.law3.launch()">&#9654; LAUNCH</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn secondary" onclick="NewtonApp.law3.reset()">Reset</button>
+          </div>
+        </div>
+
+        <!-- Data Readout -->
+        <div class="ctrl-block">
+          <div class="ctrl-block-title">Momentum &amp; Energy</div>
+          <div class="data-grid">
+            <div class="data-item">
+              <div class="data-label">p&#8321; (Ball 1)</div>
+              <div class="data-value"><span id="law3-p1">0.000</span></div>
+            </div>
+            <div class="data-item">
+              <div class="data-label">p&#8322; (Ball 2)</div>
+              <div class="data-value"><span id="law3-p2">0.000</span></div>
+            </div>
+            <div class="data-item full">
+              <div class="data-label">Total Momentum p&#8321;+p&#8322;</div>
+              <div class="data-value" id="law3-p-total" style="font-size:18px;">0.000 <span class="data-unit">kg&#183;m/s</span></div>
+            </div>
+            <div class="data-item full">
+              <div class="data-label">Kinetic Energy KE</div>
+              <div class="data-value" id="law3-ke" style="font-size:18px;">0.00 <span class="data-unit">J</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-life Example -->
+        <div class="example-block">
+          <div class="example-icon">&#128165;</div>
+          <div class="example-title">Real-World Example</div>
+          <div class="example-desc">
+            When a cannon fires, the cannonball shoots forward (action). Simultaneously, the cannon recoils backward with equal and opposite force (reaction). The momentum of both加起来 equals zero — just as before firing. A rocket does the same thing: it pushes exhaust gases downward, and the gases push the rocket upward!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graph -->
+    <div class="graph-panel">
+      <div class="graph-title">Momentum &amp; Kinetic Energy vs Time</div>
+      <canvas id="graph3" class="graph-canvas" width="1160" height="160"></canvas>
+    </div>
+  </section>
+
+</div><!-- /content-wrapper -->
+
+<!-- ==================== FOOTER ==================== -->
+<div class="footer-info">
+  <p>
+    <strong style="color:var(--text-secondary)">How to use:</strong>
+    Switch between the three tabs to explore each law. Adjust sliders to change parameters, then interact with the simulation.
+    Watch the real-time graphs update as physics unfolds. All simulations use accurate Newtonian mechanics.
+  </p>
+</div>
+
+<script src="physics.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
